@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Great Taste — Fine Dining & Delivery</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    :root {
+      --gold: #BFA060;
+      --gold-light: #D4B87A;
+      --gold-dim: rgba(191,160,96,0.15);
+      --gold-border: rgba(191,160,96,0.3);
+      --black: #080808;
+      --dark: #0F0F0F;
+      --dark2: #161616;
+      --dark3: #1E1E1E;
+      --white: #FFFFFF;
+      --offwhite: #F2EDE4;
+      --gray: #7A7A7A;
+      --gray2: #444;
+      --font-display: 'Playfair Display', serif;
+      --font-body: 'Jost', sans-serif;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);overflow-x:hidden;}
+    ::-webkit-scrollbar{width:3px;}
+    ::-webkit-scrollbar-track{background:var(--dark);}
+    ::-webkit-scrollbar-thumb{background:var(--gold);}
+
+    /* ── NAV ── */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      display:flex;justify-content:space-between;align-items:center;
+      padding:22px 48px;
+      transition:all .35s ease;
+    }
+    nav.scrolled{
+      background:rgba(8,8,8,.97);
+      padding:14px 48px;
+      border-bottom:1px solid var(--gold-border);
+      backdrop-filter:blur(12px);
+    }
+    .logo-wrap{display:flex;flex-direction:column;line-height:1;}
+    .logo-main{
+      font-family:var(--font-display);
+      font-size:26px;font-weight:700;letter-spacing:3px;
+      color:var(--white);text-transform:uppercase;
+    }
+    .logo-main span{color:var(--gold);}
+    .logo-sub{
+      font-size:8px;letter-spacing:5px;text-transform:uppercase;
+      color:var(--gold);font-weight:500;margin-top:2px;
+    }
+    .nav-links{display:flex;gap:36px;list-style:none;}
+    .nav-links a{
+      color:rgba(255,255,255,.7);text-decoration:none;
+      font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;
+      transition:color .3s;position:relative;padding-bottom:4px;
+    }
+    .nav-links a::after{
+      content:'';position:absolute;bottom:0;left:0;width:0;height:1px;
+      background:var(--gold);transition:width .3s;
+    }
+    .nav-links a:hover{color:var(--gold);}
+    .nav-links a:hover::after{width:100%;}
+    .nav-right{display:flex;align-items:center;gap:18px;}
+    .cart-btn{
+      position:relative;background:none;
+      border:1px solid var(--gold-border);color:var(--white);
+      width:42px;height:42px;border-radius:50%;cursor:pointer;
+      font-size:15px;transition:all .3s;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .cart-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--black);}
+    .cart-count{
+      position:absolute;top:-4px;right:-4px;
+      background:var(--gold);color:var(--black);
+      width:17px;height:17px;border-radius:50%;
+      font-size:9px;font-weight:700;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .hamburger{display:none;background:none;border:none;color:var(--white);font-size:20px;cursor:pointer;}
+
+    /* ── HERO ── */
+    .hero{
+      height:100vh;position:relative;
+      display:flex;align-items:center;justify-content:center;text-align:center;
+      overflow:hidden;
+    }
+    .hero-bg{
+      position:absolute;inset:0;
+      background:url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1800&q=90') center/cover no-repeat;
+      transform:scale(1.06);
+      animation:heroZoom 9s ease forwards;
+    }
+    @keyframes heroZoom{from{transform:scale(1.06);}to{transform:scale(1);}}
+    .hero-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(160deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.45) 50%,rgba(0,0,0,.82) 100%);
+    }
+    /* Gold texture stripe */
+    .hero-stripe{
+      position:absolute;left:0;right:0;bottom:0;height:3px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    }
+    .hero-content{
+      position:relative;z-index:2;max-width:820px;padding:0 24px;
+      animation:fadeUp 1.1s ease .2s both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+    .hero-badge{
+      display:inline-flex;align-items:center;gap:10px;
+      border:1px solid var(--gold-border);
+      padding:8px 22px;margin-bottom:32px;
+      font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;
+    }
+    .hero-badge .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;}
+    .hero-title{
+      font-family:var(--font-display);
+      font-size:clamp(50px,8.5vw,102px);
+      font-weight:400;line-height:1.0;
+      color:var(--white);margin-bottom:8px;
+    }
+    .hero-title .italic{font-style:italic;color:var(--gold-light);}
+    .hero-title .thin{font-weight:300;}
+    .hero-rule{
+      width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin:24px auto 24px;
+    }
+    .hero-sub{
+      font-size:12px;letter-spacing:3px;color:rgba(255,255,255,.6);
+      text-transform:uppercase;font-weight:300;margin-bottom:48px;
+    }
+    .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+    .btn-primary{
+      background:var(--gold);color:var(--black);
+      padding:15px 42px;font-size:10px;font-weight:700;
+      letter-spacing:3px;text-transform:uppercase;
+      border:none;cursor:pointer;text-decoration:none;
+      display:inline-block;transition:all .3s;
+      clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+    }
+    .btn-primary:hover{background:var(--gold-light);transform:translateY(-2px);}
+    .btn-ghost{
+      background:transparent;color:var(--white);
+      padding:15px 42px;font-size:10px;font-weight:600;
+      letter-spacing:3px;text-transform:uppercase;
+      border:1px solid rgba(255,255,255,.3);
+      cursor:pointer;text-decoration:none;display:inline-block;transition:all .3s;
+    }
+    .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+    .scroll-hint{
+      position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+      z-index:2;text-align:center;opacity:.5;animation:bobble 2.4s infinite;
+    }
+    .scroll-hint span{display:block;font-size:8px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;}
+    .scroll-hint i{color:var(--gold);font-size:12px;}
+    @keyframes bobble{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(7px);}}
+
+    /* ── STATS BAR ── */
+    .stats-bar{
+      background:var(--dark2);
+      border-top:1px solid var(--gold-border);
+      border-bottom:1px solid var(--gold-border);
+      display:grid;grid-template-columns:repeat(4,1fr);
+    }
+    .stat-item{
+      padding:32px 20px;text-align:center;
+      border-right:1px solid var(--gold-border);
+    }
+    .stat-item:last-child{border-right:none;}
+    .stat-num{
+      font-family:var(--font-display);font-size:36px;font-weight:600;
+      color:var(--gold);display:block;line-height:1;margin-bottom:6px;
+    }
+    .stat-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);font-weight:500;}
+
+    /* ── SECTION COMMON ── */
+    section{padding:100px 48px;}
+    .eyebrow{
+      font-size:9px;letter-spacing:5px;text-transform:uppercase;
+      color:var(--gold);font-weight:600;margin-bottom:14px;
+      display:flex;align-items:center;gap:12px;
+    }
+    .eyebrow::before{content:'';width:30px;height:1px;background:var(--gold);}
+    .eyebrow.center{justify-content:center;}
+    .eyebrow.center::before{display:none;}
+    .eyebrow.center::after{content:'';width:30px;height:1px;background:var(--gold);}
+    .sec-title{
+      font-family:var(--font-display);
+      font-size:clamp(34px,4.5vw,58px);font-weight:400;line-height:1.1;
+    }
+    .sec-title .italic{font-style:italic;color:var(--gold-light);}
+    .thin-rule{width:50px;height:1px;background:var(--gold);margin:22px 0;}
+    .thin-rule.center{margin:22px auto;}
+
+    /* ── ABOUT ── */
+    .about-grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:0;
+      max-width:1200px;margin:0 auto;
+      border:1px solid var(--gold-border);
+    }
+    .about-img{position:relative;overflow:hidden;min-height:500px;}
+    .about-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s;}
+    .about-img:hover img{transform:scale(1.04);}
+    .about-img-badge{
+      position:absolute;bottom:28px;left:28px;
+      background:rgba(8,8,8,.88);border:1px solid var(--gold-border);
+      padding:16px 22px;backdrop-filter:blur(8px);
+    }
+    .about-img-badge p{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+    .about-img-badge h4{font-family:var(--font-display);font-size:22px;font-weight:400;}
+    .about-text{
+      padding:60px 52px;display:flex;flex-direction:column;justify-content:center;
+      background:var(--dark2);
+    }
+    .about-text p{font-size:14px;color:var(--gray);line-height:2;margin-bottom:20px;font-weight:300;}
+    .owner-chip{
+      display:inline-flex;align-items:center;gap:12px;
+      border:1px solid var(--gold-border);padding:14px 20px;
+      margin-top:8px;width:fit-content;
+    }
+    .owner-chip i{color:var(--gold);font-size:18px;}
+    .owner-chip div p:first-child{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:2px;}
+    .owner-chip div p:last-child{font-size:15px;font-family:var(--font-display);font-weight:600;color:var(--white);}
+
+    /* ── MENU ── */
+    .menu-section{background:var(--dark);text-align:center;}
+    .menu-tabs{
+      display:flex;justify-content:center;gap:0;
+      margin-bottom:56px;
+      border:1px solid var(--gold-border);
+      width:fit-content;margin-left:auto;margin-right:auto;
+      overflow-x:auto;-webkit-overflow-scrolling:touch;
+    }
+    .menu-tab{
+      background:none;border:none;border-right:1px solid var(--gold-border);
+      color:var(--gray);font-family:var(--font-body);
+      font-size:9px;letter-spacing:3px;text-transform:uppercase;
+      padding:14px 26px;cursor:pointer;transition:all .3s;
+      white-space:nowrap;font-weight:600;
+    }
+    .menu-tab:last-child{border-right:none;}
+    .menu-tab.active{background:var(--gold);color:var(--black);}
+    .menu-tab:hover:not(.active){color:var(--gold);}
+    .menu-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);
+      gap:2px;max-width:1200px;margin:0 auto;
+    }
+    .menu-category{display:none;}
+    .menu-category.active{display:contents;}
+    .menu-card{
+      background:var(--dark2);overflow:hidden;position:relative;
+      cursor:pointer;transition:transform .3s;
+    }
+    .menu-card:hover{transform:translateY(-4px);z-index:2;}
+    .menu-card-img-wrap{overflow:hidden;position:relative;height:230px;background:linear-gradient(135deg,#1a1208,#2a1e0a);}
+    .menu-card-img{
+      width:100%;height:100%;object-fit:cover;display:block;
+      transition:transform .6s;
+    }
+    .menu-card:hover .menu-card-img{transform:scale(1.08);}
+    .menu-card-img-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 60%);
+    }
+    .menu-card-body{padding:22px 24px 24px;}
+    .menu-card-tag{
+      font-size:8px;letter-spacing:3px;text-transform:uppercase;
+      color:var(--gold);margin-bottom:7px;font-weight:600;
+    }
+    .menu-card-name{
+      font-family:var(--font-display);font-size:21px;font-weight:600;
+      margin-bottom:8px;color:var(--white);line-height:1.2;
+    }
+    .menu-card-desc{font-size:11px;color:var(--gray);line-height:1.85;margin-bottom:18px;font-weight:300;}
+    .menu-card-footer{display:flex;justify-content:space-between;align-items:center;}
+    .menu-card-price{font-family:var(--font-display);font-size:24px;color:var(--gold);font-weight:600;}
+    .add-btn{
+      background:var(--gold);color:var(--black);
+      border:none;width:34px;height:34px;
+      cursor:pointer;font-size:19px;font-weight:700;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .25s;
+      clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+    }
+    .add-btn:hover{background:var(--gold-light);transform:scale(1.1);}
+
+    /* ── FEATURE STRIP ── */
+    .feature-strip{
+      background:var(--gold);
+      padding:0;display:grid;grid-template-columns:repeat(3,1fr);
+    }
+    .feature-item{
+      padding:44px 40px;border-right:1px solid rgba(0,0,0,.15);
+      text-align:center;
+    }
+    .feature-item:last-child{border-right:none;}
+    .feature-item i{font-size:26px;color:var(--black);margin-bottom:14px;display:block;}
+    .feature-item h3{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--black);margin-bottom:6px;}
+    .feature-item p{font-size:11px;color:rgba(0,0,0,.6);line-height:1.7;font-weight:500;}
+
+    /* ── GALLERY ── */
+    .gallery{background:var(--black);padding:80px 48px;}
+    .gallery-grid{
+      display:grid;
+      grid-template-columns:2fr 1fr 1fr;
+      grid-template-rows:auto auto;
+      gap:3px;max-width:1200px;margin:48px auto 0;
+    }
+    .gallery-item{overflow:hidden;position:relative;}
+    .gallery-item.tall{grid-row:span 2;}
+    .gallery-item img{
+      width:100%;height:100%;object-fit:cover;display:block;
+      transition:transform .6s;min-height:220px;
+    }
+    .gallery-item:hover img{transform:scale(1.06);}
+    .gallery-caption{
+      position:absolute;bottom:0;left:0;right:0;
+      background:linear-gradient(to top,rgba(0,0,0,.8),transparent);
+      padding:20px 18px 14px;
+      transform:translateY(100%);transition:transform .35s;
+    }
+    .gallery-item:hover .gallery-caption{transform:translateY(0);}
+    .gallery-caption span{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+
+    /* ── TESTIMONIALS ── */
+    .testimonials{background:var(--dark2);text-align:center;}
+    .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:1100px;margin:56px auto 0;}
+    .testi-card{background:var(--dark3);padding:40px 32px;text-align:left;position:relative;}
+    .testi-card::before{
+      content:'"';font-family:var(--font-display);font-size:80px;
+      color:var(--gold);opacity:.15;position:absolute;top:10px;left:20px;
+      line-height:1;
+    }
+    .stars{color:var(--gold);font-size:11px;letter-spacing:2px;margin-bottom:18px;}
+    .testi-text{
+      font-family:var(--font-display);font-size:16px;font-style:italic;
+      line-height:1.8;color:var(--offwhite);margin-bottom:22px;position:relative;z-index:1;
+    }
+    .testi-divider{width:28px;height:1px;background:var(--gold);margin-bottom:12px;}
+    .testi-author{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+    .testi-loc{font-size:9px;color:var(--gray);letter-spacing:1px;margin-top:2px;}
+
+    /* ── CART SIDEBAR ── */
+    .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:none;backdrop-filter:blur(3px);}
+    .cart-overlay.open{display:block;}
+    .cart-sidebar{
+      position:fixed;top:0;right:-100%;width:min(420px,100vw);height:100vh;
+      background:var(--dark2);z-index:2001;display:flex;flex-direction:column;
+      transition:right .38s cubic-bezier(.4,0,.2,1);
+      border-left:1px solid var(--gold-border);
+    }
+    .cart-sidebar.open{right:0;}
+    .cart-header{
+      padding:26px 26px 18px;border-bottom:1px solid var(--gold-border);
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .cart-header h2{font-family:var(--font-display);font-size:26px;font-weight:400;}
+    .close-btn{
+      background:none;border:1px solid rgba(255,255,255,.15);color:var(--white);
+      width:34px;height:34px;cursor:pointer;font-size:14px;
+      display:flex;align-items:center;justify-content:center;transition:all .3s;
+    }
+    .close-btn:hover{border-color:var(--gold);color:var(--gold);}
+    .cart-items{flex:1;overflow-y:auto;padding:18px 26px;}
+    .cart-empty{text-align:center;padding:60px 20px;color:var(--gray);}
+    .cart-empty i{font-size:44px;color:var(--gold-border);margin-bottom:14px;display:block;}
+    .cart-empty p{font-family:var(--font-display);font-size:18px;font-style:italic;}
+    .cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+    .cart-item-img{width:66px;height:66px;object-fit:cover;flex-shrink:0;}
+    .cart-item-info{flex:1;}
+    .cart-item-name{font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:3px;}
+    .cart-item-price{color:var(--gold);font-size:13px;font-weight:500;margin-bottom:9px;}
+    .qty-controls{display:flex;align-items:center;gap:10px;}
+    .qty-btn{
+      background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);
+      width:26px;height:26px;cursor:pointer;font-size:15px;
+      display:flex;align-items:center;justify-content:center;transition:all .2s;
+    }
+    .qty-btn:hover{background:var(--gold);color:var(--black);}
+    .qty-num{font-size:14px;font-weight:600;min-width:18px;text-align:center;}
+    .cart-footer{padding:18px 26px 26px;border-top:1px solid var(--gold-border);}
+    .cart-row{display:flex;justify-content:space-between;font-size:11px;color:var(--gray);margin-bottom:7px;letter-spacing:1px;text-transform:uppercase;}
+    .cart-total-row{
+      display:flex;justify-content:space-between;align-items:center;
+      margin:14px 0 20px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);
+    }
+    .cart-total-row span:first-child{font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:600;}
+    .cart-total-row span:last-child{font-family:var(--font-display);font-size:26px;color:var(--gold);}
+    .checkout-btn{
+      width:100%;background:var(--gold);color:var(--black);border:none;
+      padding:17px;font-family:var(--font-body);font-size:10px;
+      font-weight:700;letter-spacing:3px;text-transform:uppercase;
+      cursor:pointer;transition:all .3s;
+    }
+    .checkout-btn:hover{background:var(--gold-light);}
+
+    /* ── CHECKOUT MODAL ── */
+    .modal-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:3000;
+      display:none;align-items:flex-start;justify-content:center;
+      padding:20px;overflow-y:auto;backdrop-filter:blur(8px);
+    }
+    .modal-overlay.open{display:flex;}
+    .modal{
+      background:var(--dark2);width:100%;max-width:510px;
+      border:1px solid var(--gold-border);margin:auto;
+      animation:slideDown .38s ease;
+    }
+    @keyframes slideDown{from{opacity:0;transform:translateY(-18px);}to{opacity:1;transform:translateY(0);}}
+    .modal-header{
+      padding:26px 26px 18px;border-bottom:1px solid var(--gold-border);
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .modal-header h2{font-family:var(--font-display);font-size:26px;font-weight:400;}
+    .modal-body{padding:26px;}
+    .form-group{margin-bottom:18px;}
+    .form-label{display:block;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;font-weight:600;}
+    .form-input,.form-select,.form-textarea{
+      width:100%;background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.1);color:var(--white);
+      padding:13px 15px;font-family:var(--font-body);font-size:13px;
+      outline:none;transition:border-color .3s;
+    }
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold);}
+    .form-select{
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23BFA060' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 15px center;cursor:pointer;
+    }
+    .form-select option{background:var(--dark2);}
+    .form-textarea{resize:vertical;min-height:75px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .payment-opts{display:grid;gap:8px;}
+    .pay-opt{
+      display:flex;align-items:center;gap:13px;
+      padding:14px 16px;border:1px solid rgba(255,255,255,.08);
+      cursor:pointer;transition:all .3s;
+    }
+    .pay-opt:hover{border-color:var(--gold-border);}
+    .pay-opt.sel{border-color:var(--gold);background:var(--gold-dim);}
+    .pay-radio{
+      width:16px;height:16px;border:2px solid rgba(255,255,255,.25);
+      border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .3s;
+    }
+    .pay-opt.sel .pay-radio{border-color:var(--gold);}
+    .pay-opt.sel .pay-radio::after{content:'';width:7px;height:7px;background:var(--gold);border-radius:50%;}
+    .pay-info{flex:1;}
+    .pay-name{font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:1px;}
+    .pay-desc{font-size:10px;color:var(--gray);}
+    .pay-icon{color:var(--gold);font-size:18px;}
+    .order-mini{background:rgba(0,0,0,.35);padding:15px 16px;margin-bottom:22px;border-left:2px solid var(--gold);}
+    .order-mini h4{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:600;}
+    .mini-row{display:flex;justify-content:space-between;font-size:12px;color:var(--gray);margin-bottom:5px;}
+    .mini-total{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--white);margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08);}
+    .confirm-btn{
+      width:100%;background:var(--gold);color:var(--black);border:none;
+      padding:17px;font-family:var(--font-body);font-size:10px;font-weight:700;
+      letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .3s;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+    }
+    .confirm-btn:hover{background:var(--gold-light);}
+
+    /* ── SUCCESS ── */
+    .success-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:4000;
+      display:none;align-items:center;justify-content:center;text-align:center;padding:40px;
+    }
+    .success-overlay.open{display:flex;}
+    .success-box{max-width:380px;animation:fadeUp .5s ease;}
+    .success-icon{
+      width:76px;height:76px;border:1px solid var(--gold);
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 26px;font-size:28px;color:var(--gold);
+    }
+    .success-box h2{font-family:var(--font-display);font-size:34px;font-weight:400;margin-bottom:14px;}
+    .success-box p{color:var(--gray);font-size:13px;line-height:1.8;margin-bottom:30px;}
+
+    /* ── FOOTER ── */
+    footer{
+      background:var(--dark2);
+      border-top:1px solid var(--gold-border);
+      padding:64px 48px 28px;
+    }
+    .footer-inner{
+      max-width:1100px;margin:0 auto;
+      display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:60px;
+      margin-bottom:52px;
+    }
+    .footer-brand .logo-main{font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:3px;color:var(--white);}
+    .footer-brand .logo-main span{color:var(--gold);}
+    .footer-brand .logo-sub{font-size:8px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:18px;display:block;margin-top:2px;}
+    .footer-brand p{font-size:12px;color:var(--gray);line-height:1.9;font-weight:300;margin-bottom:20px;}
+    .footer-owner{display:flex;align-items:center;gap:10px;}
+    .footer-owner i{color:var(--gold);}
+    .footer-owner span{font-size:11px;color:var(--offwhite);font-weight:500;}
+    .footer-col h4{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:20px;}
+    .footer-col ul{list-style:none;}
+    .footer-col ul li{margin-bottom:11px;}
+    .footer-col ul a{color:var(--gray);text-decoration:none;font-size:12px;font-weight:300;transition:color .3s;}
+    .footer-col ul a:hover{color:var(--gold);}
+    .footer-contact-item{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .footer-contact-item i{color:var(--gold);width:14px;font-size:12px;}
+    .footer-contact-item span{font-size:12px;color:var(--gray);font-weight:300;}
+    .footer-bottom{
+      max-width:1100px;margin:0 auto;
+      padding-top:24px;border-top:1px solid rgba(255,255,255,.06);
+      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+    }
+    .footer-bottom p{font-size:10px;color:rgba(255,255,255,.2);letter-spacing:1px;}
+    .footer-bottom p span{color:var(--gold);}
+    .footer-bottom-right{font-size:10px;color:rgba(255,255,255,.2);letter-spacing:1px;}
+
+    /* ── MOBILE MENU ── */
+    .mobile-nav{
+      position:fixed;top:0;left:-100%;width:270px;height:100vh;
+      background:var(--dark2);z-index:1500;padding:80px 36px 40px;
+      transition:left .32s ease;border-right:1px solid var(--gold-border);
+    }
+    .mobile-nav.open{left:0;}
+    .mobile-nav ul{list-style:none;}
+    .mobile-nav ul li{margin-bottom:26px;}
+    .mobile-nav ul a{color:rgba(255,255,255,.8);text-decoration:none;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:500;transition:color .3s;}
+    .mobile-nav ul a:hover{color:var(--gold);}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){
+      .menu-grid{grid-template-columns:repeat(2,1fr);}
+      .footer-inner{grid-template-columns:1fr 1fr;gap:40px;}
+      .footer-inner .footer-brand{grid-column:span 2;}
+    }
+    @media(max-width:768px){
+      nav{padding:15px 20px;}
+      .nav-links{display:none;}
+      .hamburger{display:block;}
+      section{padding:70px 20px;}
+      .stats-bar{grid-template-columns:repeat(2,1fr);}
+      .stat-item:nth-child(2){border-right:none;}
+      .stat-item:nth-child(3){border-top:1px solid var(--gold-border);}
+      .stat-item:nth-child(4){border-top:1px solid var(--gold-border);border-right:none;}
+      .about-grid{grid-template-columns:1fr;}
+      .about-img{min-height:300px;}
+      .feature-strip{grid-template-columns:1fr;}
+      .feature-item{border-right:none;border-bottom:1px solid rgba(0,0,0,.15);}
+      .feature-item:last-child{border-bottom:none;}
+      .gallery-grid{grid-template-columns:1fr 1fr;}
+      .gallery-item.tall{grid-row:span 1;}
+      .testi-grid{grid-template-columns:1fr;}
+      .footer-inner{grid-template-columns:1fr;}
+      .footer-inner .footer-brand{grid-column:span 1;}
+      .footer-bottom{flex-direction:column;text-align:center;}
+      .menu-tabs{width:100%;}
+      .menu-tab{padding:12px 16px;font-size:8px;}
+      .form-row{grid-template-columns:1fr;}
+      .gallery{padding:60px 20px;}
+    }
+    @media(max-width:480px){
+      .menu-grid{grid-template-columns:1fr;}
+      .hero-btns{flex-direction:column;align-items:center;}
+      .btn-primary,.btn-ghost{width:100%;max-width:260px;text-align:center;}
+      .gallery-grid{grid-template-columns:1fr;}
+    }
+
+    .img-fallback{
+      display:none;position:absolute;inset:0;
+      flex-direction:column;align-items:center;justify-content:center;gap:10px;
+      background:linear-gradient(135deg,#1a1208 0%,#2a1e0a 50%,#160f05 100%);
+    }
+    .img-fallback .fb-emoji{font-size:62px;line-height:1;}
+    .img-fallback .fb-lbl{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:#BFA060;opacity:.75;font-family:var(--font-body);}
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="logo-wrap">
+    <div class="logo-main">Great <span>Taste</span></div>
+    <span class="logo-sub">Fine Dining &amp; Delivery</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="toggleCart()">
+      <i class="fas fa-shopping-bag"></i>
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+    <button class="hamburger" onclick="toggleMobile()"><i class="fas fa-bars"></i></button>
+  </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <ul>
+    <li><a href="#menu" onclick="toggleMobile()">Menu</a></li>
+    <li><a href="#about" onclick="toggleMobile()">About</a></li>
+    <li><a href="#gallery" onclick="toggleMobile()">Gallery</a></li>
+    <li><a href="#reviews" onclick="toggleMobile()">Reviews</a></li>
+    <li><a href="#contact" onclick="toggleMobile()">Contact</a></li>
+  </ul>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-stripe"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span>Est. 2024 · New Delhi<span class="dot"></span></div>
+    <h1 class="hero-title">
+      <span class="thin">Taste the Art of</span><br>
+      <span class="italic">Extraordinary</span><br>
+      <span>Cuisine</span>
+    </h1>
+    <div class="hero-rule"></div>
+    <p class="hero-sub">Indian &amp; Continental · Crafted with Passion · Delivered to Your Door</p>
+    <div class="hero-btns">
+      <a href="#menu" class="btn-primary">Order Now</a>
+      <a href="#about" class="btn-ghost">Our Story</a>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Discover</span><i class="fas fa-chevron-down"></i></div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">5★</span><span class="stat-label">Chef's Rating</span></div>
+  <div class="stat-item"><span class="stat-num">2K+</span><span class="stat-label">Orders Delivered</span></div>
+  <div class="stat-item"><span class="stat-num">30+</span><span class="stat-label">Signature Dishes</span></div>
+  <div class="stat-item"><span class="stat-num">45<span style="font-size:22px">min</span></span><span class="stat-label">Avg Delivery</span></div>
+</div>
+
+<!-- ABOUT -->
+<section id="about" style="padding:0;background:var(--black);">
+  <div class="about-grid">
+    <div class="about-img">
+      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=90" alt="Great Taste Restaurant Interior"/>
+      <div class="about-img-badge">
+        <p>Since 2024</p>
+        <h4>New Delhi</h4>
+      </div>
+    </div>
+    <div class="about-text">
+      <div class="eyebrow">Our Story</div>
+      <h2 class="sec-title">A Dining <span class="italic">Experience</span><br>Like No Other</h2>
+      <div class="thin-rule"></div>
+      <p>At Great Taste, every plate is a canvas. We blend the soul of Indian culinary heritage with the elegance of Continental cuisine — crafting experiences that transcend a simple meal.</p>
+      <p>From slow-cooked biryanis to hand-rolled pastas, every dish is prepared with premium ingredients, daily-fresh produce, and unwavering attention to detail.</p>
+      <div class="owner-chip">
+        <i class="fas fa-crown"></i>
+        <div>
+          <p>Founded &amp; Led by</p>
+          <p>Gulshan Singh</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE STRIP -->
+<div class="feature-strip">
+  <div class="feature-item">
+    <i class="fas fa-award"></i>
+    <h3>Premium Quality</h3>
+    <p>Every dish crafted by expert chefs using only finest ingredients</p>
+  </div>
+  <div class="feature-item">
+    <i class="fas fa-motorcycle"></i>
+    <h3>Fast Delivery</h3>
+    <p>Hot, fresh &amp; perfectly packed at your doorstep within 45 mins</p>
+  </div>
+  <div class="feature-item">
+    <i class="fas fa-leaf"></i>
+    <h3>Daily Fresh</h3>
+    <p>Locally sourced produce, zero compromise on freshness</p>
+  </div>
+</div>
+
+<!-- MENU -->
+<section class="menu-section" id="menu">
+  <div class="eyebrow center">Curated for You</div>
+  <h2 class="sec-title" style="text-align:center">The <span class="italic">Menu</span></h2>
+  <div class="thin-rule center"></div>
+
+  <div class="menu-tabs" style="margin-bottom:52px;">
+    <button class="menu-tab active" onclick="switchTab('starters',this)">Starters</button>
+    <button class="menu-tab" onclick="switchTab('mains',this)">Mains</button>
+    <button class="menu-tab" onclick="switchTab('biryani',this)">Biryani</button>
+    <button class="menu-tab" onclick="switchTab('continental',this)">Continental</button>
+    <button class="menu-tab" onclick="switchTab('desserts',this)">Desserts</button>
+    <button class="menu-tab" onclick="switchTab('drinks',this)">Drinks</button>
+  </div>
+
+  <div class="menu-grid">
+
+    <!-- STARTERS -->
+    <div class="menu-category active" id="cat-starters">
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1512058564366-18510be2db19?w=700&q=85" alt="Seekh Kebab" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍢</span><span class="fb-lbl">Seekh Kebab</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Indian · Charcoal Grilled</p>
+          <h3 class="menu-card-name">Seekh Kebab</h3>
+          <p class="menu-card-desc">Tender minced lamb & aromatic spices, grilled over live charcoal, served with house mint chutney</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹349</span>
+            <button class="add-btn" onclick="addToCart('Seekh Kebab',349,'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=700&q=85" alt="Paneer Tikka" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🧀</span><span class="fb-lbl">Paneer Tikka</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Indian · Vegetarian</p>
+          <h3 class="menu-card-name">Paneer Tikka</h3>
+          <p class="menu-card-desc">Marinated cottage cheese, bell peppers & onions, tandoor-kissed with signature spice blend</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹299</span>
+            <button class="add-btn" onclick="addToCart('Paneer Tikka',299,'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=700&q=85" alt="Bruschetta" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍞</span><span class="fb-lbl">Bruschetta</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Continental · Light</p>
+          <h3 class="menu-card-name">Classic Bruschetta</h3>
+          <p class="menu-card-desc">Sourdough toast, vine-ripened tomatoes, fresh basil, roasted garlic & Sicilian olive oil</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹249</span>
+            <button class="add-btn" onclick="addToCart('Classic Bruschetta',249,'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAINS -->
+    <div class="menu-category" id="cat-mains">
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=700&q=85" alt="Butter Chicken" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍛</span><span class="fb-lbl">Butter Chicken</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Indian · Signature</p>
+          <h3 class="menu-card-name">Butter Chicken</h3>
+          <p class="menu-card-desc">Free-range chicken slow-cooked in velvety tomato-cream gravy, chef's house masala</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹449</span>
+            <button class="add-btn" onclick="addToCart('Butter Chicken',449,'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1546833998-877b37c2e5c6?w=700&q=85" alt="Salmon" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🐟</span><span class="fb-lbl">Salmon</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Continental · Chef's Pick</p>
+          <h3 class="menu-card-name">Pan-Seared Salmon</h3>
+          <p class="menu-card-desc">Norwegian salmon fillet, lemon-caper butter, seasonal greens & roasted fingerling potatoes</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹699</span>
+            <button class="add-btn" onclick="addToCart('Pan-Seared Salmon',699,'https://images.unsplash.com/photo-1546833998-877b37c2e5c6?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1574484284002-952d92456975?w=700&q=85" alt="Dal Makhani" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🫘</span><span class="fb-lbl">Dal Makhani</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Indian · Vegetarian</p>
+          <h3 class="menu-card-name">Dal Makhani</h3>
+          <p class="menu-card-desc">Black lentils simmered overnight, finished with Amul butter, fresh cream & tandoor smoke</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹349</span>
+            <button class="add-btn" onclick="addToCart('Dal Makhani',349,'https://images.unsplash.com/photo-1574484284002-952d92456975?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIRYANI -->
+    <div class="menu-category" id="cat-biryani">
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=700&q=85" alt="Hyderabadi Biryani" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍚</span><span class="fb-lbl">Hyderabadi Biryani</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Biryani · Signature Dum</p>
+          <h3 class="menu-card-name">Hyderabadi Dum Biryani</h3>
+          <p class="menu-card-desc">Aged basmati, slow-cooked mutton, Kashmiri saffron & caramelised onions — sealed dum style</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹549</span>
+            <button class="add-btn" onclick="addToCart('Hyderabadi Dum Biryani',549,'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=700&q=85" alt="Chicken Biryani" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍗</span><span class="fb-lbl">Chicken Biryani</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Biryani · Most Loved</p>
+          <h3 class="menu-card-name">Royal Chicken Biryani</h3>
+          <p class="menu-card-desc">Tender chicken, fragrant basmati, golden fried onions & cooling boondi raita on the side</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹449</span>
+            <button class="add-btn" onclick="addToCart('Royal Chicken Biryani',449,'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=700&q=85" alt="Veg Biryani" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🥗</span><span class="fb-lbl">Veg Biryani</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Biryani · Vegetarian</p>
+          <h3 class="menu-card-name">Garden Veg Biryani</h3>
+          <p class="menu-card-desc">Seasonal vegetables, whole spices, saffron-infused basmati — light yet deeply flavourful</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹349</span>
+            <button class="add-btn" onclick="addToCart('Garden Veg Biryani',349,'https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTINENTAL -->
+    <div class="menu-category" id="cat-continental">
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=700&q=85" alt="Pasta" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍝</span><span class="fb-lbl">Pasta</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Continental · Italian</p>
+          <h3 class="menu-card-name">Truffle Cream Pasta</h3>
+          <p class="menu-card-desc">House fettuccine, black truffle oil, aged parmesan cream, crispy pancetta & fresh herbs</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹599</span>
+            <button class="add-btn" onclick="addToCart('Truffle Cream Pasta',599,'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=700&q=85" alt="Gourmet Burger" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍔</span><span class="fb-lbl">Gourmet Burger</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Continental · Gourmet</p>
+          <h3 class="menu-card-name">Prime Beef Burger</h3>
+          <p class="menu-card-desc">180g Angus beef patty, aged cheddar, truffle aioli, brioche bun & house-cut parmesan fries</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹649</span>
+            <button class="add-btn" onclick="addToCart('Prime Beef Burger',649,'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1544025162-d76694265947?w=700&q=85" alt="Tenderloin Steak" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🥩</span><span class="fb-lbl">Tenderloin Steak</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Continental · Premium Cut</p>
+          <h3 class="menu-card-name">Grilled Tenderloin</h3>
+          <p class="menu-card-desc">200g beef tenderloin, red wine jus, roasted garlic mash, charred asparagus</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹1,199</span>
+            <button class="add-btn" onclick="addToCart('Grilled Tenderloin',1199,'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESSERTS -->
+    <div class="menu-category" id="cat-desserts">
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=700&q=85" alt="Gulab Jamun" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍮</span><span class="fb-lbl">Gulab Jamun</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Indian · Classic Sweet</p>
+          <h3 class="menu-card-name">Gulab Jamun</h3>
+          <p class="menu-card-desc">Soft milk-solid dumplings in rose & cardamom syrup, paired with house vanilla ice cream</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹199</span>
+            <button class="add-btn" onclick="addToCart('Gulab Jamun',199,'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=700&q=85" alt="Lava Cake" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍫</span><span class="fb-lbl">Lava Cake</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Continental · Signature</p>
+          <h3 class="menu-card-name">Chocolate Lava Cake</h3>
+          <p class="menu-card-desc">Warm Valrhona dark chocolate fondant, vanilla bean gelato, edible gold & praline dust</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹299</span>
+            <button class="add-btn" onclick="addToCart('Chocolate Lava Cake',299,'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=700&q=85" alt="Cheesecake" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🎂</span><span class="fb-lbl">Cheesecake</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Continental · Baked</p>
+          <h3 class="menu-card-name">New York Cheesecake</h3>
+          <p class="menu-card-desc">Classic baked vanilla cheesecake, fresh seasonal berry compote, butter graham crust</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹279</span>
+            <button class="add-btn" onclick="addToCart('New York Cheesecake',279,'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DRINKS -->
+    <div class="menu-category" id="cat-drinks">
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=700&q=85" alt="Mocktail" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🍹</span><span class="fb-lbl">Mocktail</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Beverage · Signature Mocktail</p>
+          <h3 class="menu-card-name">Royal Sunset</h3>
+          <p class="menu-card-desc">Mango, passion fruit, rose syrup, sparkling water, fresh mint & edible flower garnish</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹199</span>
+            <button class="add-btn" onclick="addToCart('Royal Sunset Mocktail',199,'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=700&q=85" alt="Signature Latte" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">☕</span><span class="fb-lbl">Signature Latte</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Beverage · Hot Coffee</p>
+          <h3 class="menu-card-name">Signature Latte</h3>
+          <p class="menu-card-desc">Single-origin Ethiopian espresso, steamed whole milk, house caramel & cinnamon dust</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹179</span>
+            <button class="add-btn" onclick="addToCart('Signature Latte',179,'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-card-img-wrap">
+          <img class="menu-card-img" src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=700&q=85" alt="Saffron Lassi" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+          <div class="img-fallback"><span class="fb-emoji">🥛</span><span class="fb-lbl">Saffron Lassi</span></div>
+          <div class="menu-card-img-overlay"></div>
+        </div>
+        <div class="menu-card-body">
+          <p class="menu-card-tag">● Beverage · Indian Classic</p>
+          <h3 class="menu-card-name">Saffron Lassi</h3>
+          <p class="menu-card-desc">Chilled full-fat yogurt, Kashmiri saffron threads, rose water & crushed pistachios</p>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">₹149</span>
+            <button class="add-btn" onclick="addToCart('Saffron Lassi',149,'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=300&q=80')">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery" id="gallery">
+  <div class="eyebrow center">Behind the Plating</div>
+  <h2 class="sec-title" style="text-align:center">A Feast for the <span class="italic">Eyes</span></h2>
+  <div class="gallery-grid">
+    <div class="gallery-item tall">
+      <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=85" alt="Fine Dining"/>
+      <div class="gallery-caption"><span>Fine Dining</span></div>
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=85" alt="Premium Dishes" style="min-height:240px"/>
+      <div class="gallery-caption"><span>Premium Cuts</span></div>
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=85" alt="Artisan Pizza" style="min-height:240px"/>
+      <div class="gallery-caption"><span>Artisan Craft</span></div>
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=85" alt="Desserts" style="min-height:220px"/>
+      <div class="gallery-caption"><span>Sweet Endings</span></div>
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=85" alt="Biryani" style="min-height:220px"/>
+      <div class="gallery-caption"><span>Biryani Royale</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="reviews">
+  <div class="eyebrow center">Guest Voices</div>
+  <h2 class="sec-title" style="text-align:center">What Our <span class="italic">Guests</span> Say</h2>
+  <div class="thin-rule center"></div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"The Hyderabadi Biryani was absolutely divine. Delivered hot and perfectly packed. This is now our go-to for every celebration."</p>
+      <div class="testi-divider"></div>
+      <div class="testi-author">Priya Sharma</div>
+      <div class="testi-loc">South Delhi</div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"The Truffle Pasta rivals anything I've had in Europe. Exceptional quality, beautiful packaging, and delivery was lightning fast."</p>
+      <div class="testi-divider"></div>
+      <div class="testi-author">Arjun Mehta</div>
+      <div class="testi-loc">Noida</div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"Ordered for a dinner party of 12. Every guest was floored. Seekh Kebabs and Dal Makhani — absolutely legendary. Will order again!"</p>
+      <div class="testi-divider"></div>
+      <div class="testi-author">Kavya Reddy</div>
+      <div class="testi-loc">Gurgaon</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo-main">Great <span>Taste</span></div>
+      <span class="logo-sub">Fine Dining & Delivery</span>
+      <p>Crafting extraordinary culinary experiences at your doorstep. Every plate tells a story of passion, heritage, and perfection.</p>
+      <div class="footer-owner">
+        <i class="fas fa-crown"></i>
+        <span>Gulshan Singh — Founder & Owner</span>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#menu">Our Menu</a></li>
+        <li><a href="#about">Our Story</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Reach Us</h4>
+      <div class="footer-contact-item"><i class="fab fa-whatsapp"></i><span>+91 99908 59930</span></div>
+      <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>New Delhi, India</span></div>
+      <div class="footer-contact-item"><i class="fas fa-clock"></i><span>11 AM – 11 PM Daily</span></div>
+      <div class="footer-contact-item"><i class="fas fa-motorcycle"></i><span>Delivery within 45 mins</span></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 <span>Great Taste</span>. All rights reserved.</p>
+    <p class="footer-bottom-right">Founded by <span>Gulshan Singh</span></p>
+  </div>
+</footer>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h2>Your Order</h2>
+    <button class="close-btn" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>Your cart is empty</p></div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
+    <div class="cart-row"><span>Delivery</span><span id="cartDelivery">₹49</span></div>
+    <div class="cart-total-row"><span>Total</span><span id="cartTotal">₹0</span></div>
+    <button class="checkout-btn" onclick="openCheckout()"><i class="fas fa-lock" style="margin-right:8px"></i>Proceed to Checkout</button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Checkout</h2>
+      <button class="close-btn" onclick="closeCheckout()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="firstName" placeholder="Rahul"/></div>
+        <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="lastName" placeholder="Sharma"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" id="phone" placeholder="+91 98765 43210"/></div>
+      <div class="form-group"><label class="form-label">Delivery Address</label><input type="text" class="form-input" id="address" placeholder="House No., Street, Area"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" id="city" placeholder="Delhi"/></div>
+        <div class="form-group"><label class="form-label">Pincode</label><input type="text" class="form-input" id="pincode" placeholder="110001"/></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Distance from Restaurant</label>
+        <select class="form-select" id="distance" onchange="updateDelivery()">
+          <option value="49">0 – 3 km &nbsp;·&nbsp; ₹49 delivery</option>
+          <option value="99">3 – 7 km &nbsp;·&nbsp; ₹99 delivery</option>
+          <option value="149">7 km+ &nbsp;·&nbsp; ₹149 delivery</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Payment Method</label>
+        <div class="payment-opts">
+          <div class="pay-opt sel" onclick="selPay(this,'Cash on Delivery')">
+            <div class="pay-radio"></div>
+            <div class="pay-info"><div class="pay-name">Cash on Delivery</div><div class="pay-desc">Pay in cash when your order arrives</div></div>
+            <i class="fas fa-money-bill-wave pay-icon"></i>
+          </div>
+          <div class="pay-opt" onclick="selPay(this,'UPI / QR Code')">
+            <div class="pay-radio"></div>
+            <div class="pay-info"><div class="pay-name">UPI / QR Code</div><div class="pay-desc">Pay now — directly to our bank</div></div>
+            <i class="fas fa-qrcode pay-icon"></i>
+          </div>
+          <div class="pay-opt" onclick="selPay(this,'Razorpay')">
+            <div class="pay-radio"></div>
+            <div class="pay-info"><div class="pay-name">Pay Online</div><div class="pay-desc">Card, UPI, Netbanking & Wallets — secure checkout</div></div>
+            <i class="fas fa-shield-halved pay-icon"></i>
+          </div>
+          <div class="pay-opt" onclick="selPay(this,'Card at Door')">
+            <div class="pay-radio"></div>
+            <div class="pay-info"><div class="pay-name">Card at Door</div><div class="pay-desc">Pay by card when order arrives</div></div>
+            <i class="fas fa-credit-card pay-icon"></i>
+          </div>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Special Instructions</label><textarea class="form-textarea" id="instructions" placeholder="Spice level, allergies, special requests..."></textarea></div>
+      <div class="order-mini" id="orderMini"></div>
+      <button class="confirm-btn" onclick="confirmOrder()"><i class="fab fa-whatsapp"></i> Confirm Order via WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon"><i class="fas fa-check"></i></div>
+    <h2>Order Placed!</h2>
+    <p>Your order details have been sent to WhatsApp. Our team will confirm and dispatch shortly.</p>
+    <button class="btn-primary" onclick="closeSuccess()">Back to Menu</button>
+  </div>
+</div>
+
+<script>
+  // 🔴 Set this based on where you deploy your backend (see SETUP.md):
+  //   Render:  'https://your-backend.onrender.com/api'
+  //   Netlify: '/.netlify/functions/api'   (relative — same site, no CORS needed)
+  const BACKEND_URL='/.netlify/functions/api';
+  let cart=[], selPayment='Cash on Delivery', delivery=49;
+
+  window.addEventListener('scroll',()=>{
+    document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>55);
+  });
+
+  function toggleMobile(){document.getElementById('mobileNav').classList.toggle('open');}
+  function toggleCart(){
+    document.getElementById('cartOverlay').classList.toggle('open');
+    document.getElementById('cartSidebar').classList.toggle('open');
+  }
+  function switchTab(cat,btn){
+    document.querySelectorAll('.menu-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.menu-category').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('cat-'+cat).classList.add('active');
+  }
+  function addToCart(name,price,img){
+    const ex=cart.find(i=>i.name===name);
+    if(ex){ex.qty++;}else{cart.push({name,price,img,qty:1});}
+    updateCartUI();
+    document.getElementById('cartOverlay').classList.add('open');
+    document.getElementById('cartSidebar').classList.add('open');
+  }
+  function changeQty(name,d){
+    const item=cart.find(i=>i.name===name);
+    if(!item)return;
+    item.qty+=d;
+    if(item.qty<=0)cart=cart.filter(i=>i.name!==name);
+    updateCartUI();
+  }
+  function updateCartUI(){
+    const subtotal=cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const count=cart.reduce((s,i)=>s+i.qty,0);
+    document.getElementById('cartCount').textContent=count;
+    const itemsEl=document.getElementById('cartItems');
+    const footerEl=document.getElementById('cartFooter');
+    if(cart.length===0){
+      itemsEl.innerHTML='<div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>Your cart is empty</p></div>';
+      footerEl.style.display='none';
+    }else{
+      itemsEl.innerHTML=cart.map(item=>`
+        <div class="cart-item">
+          <img class="cart-item-img" src="${item.img}" alt="${item.name}"/>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">₹${item.price}</div>
+            <div class="qty-controls">
+              <button class="qty-btn" onclick="changeQty('${item.name}',-1)">−</button>
+              <span class="qty-num">${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty('${item.name}',1)">+</button>
+            </div>
+          </div>
+        </div>`).join('');
+      footerEl.style.display='block';
+      document.getElementById('cartSubtotal').textContent='₹'+subtotal;
+      document.getElementById('cartDelivery').textContent='₹'+delivery;
+      document.getElementById('cartTotal').textContent='₹'+(subtotal+delivery);
+    }
+  }
+  function openCheckout(){
+    if(cart.length===0)return;
+    updateMini();
+    document.getElementById('checkoutModal').classList.add('open');
+  }
+  function closeCheckout(){document.getElementById('checkoutModal').classList.remove('open');}
+  function updateDelivery(){
+    delivery=parseInt(document.getElementById('distance').value);
+    updateCartUI();updateMini();
+  }
+  function selPay(el,method){
+    document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('sel'));
+    el.classList.add('sel');selPayment=method;
+  }
+  function updateMini(){
+    const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const total=sub+delivery;
+    const rows=cart.map(i=>`<div class="mini-row"><span>${i.name} ×${i.qty}</span><span>₹${i.price*i.qty}</span></div>`).join('');
+    document.getElementById('orderMini').innerHTML=`<h4>Order Summary</h4>${rows}<div class="mini-row"><span>Delivery</span><span>₹${delivery}</span></div><div class="mini-total"><span>Total</span><span>₹${total}</span></div>`;
+  }
+  function confirmOrder(){
+    const fn=document.getElementById('firstName').value.trim();
+    const ln=document.getElementById('lastName').value.trim();
+    const ph=document.getElementById('phone').value.trim();
+    const ad=document.getElementById('address').value.trim();
+    const ci=document.getElementById('city').value.trim();
+    const pi=document.getElementById('pincode').value.trim();
+    const ins=document.getElementById('instructions').value.trim();
+    if(!fn||!ph||!ad||!ci||!pi){alert('Please fill all required fields.');return;}
+    const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const total=sub+delivery;
+    pendingOrder={fn,ln,ph,ad,ci,pi,ins,sub,total};
+    if(selPayment==='UPI / QR Code'){ openUpi(total); return; }
+    if(selPayment==='Razorpay'){ openRazorpay(total); return; }
+    sendOrderWhatsApp('Pending at delivery');
+  }
+  function sendOrderWhatsApp(payStatus){
+    const o=pendingOrder; if(!o) return;
+    const items=cart.map(i=>`• ${i.name} ×${i.qty} = ₹${i.price*i.qty}`).join('%0A');
+    const msg=`🍽️ *NEW ORDER — Great Taste*%0A👑 *Owner: Gulshan Singh*%0A${'─'.repeat(28)}%0A%0A`
+      +`👤 *Name:* ${o.fn} ${o.ln}%0A`
+      +`📞 *Phone:* ${o.ph}%0A`
+      +`📍 *Address:* ${o.ad}, ${o.ci} — ${o.pi}%0A%0A`
+      +`🛒 *Items Ordered:*%0A${items}%0A%0A`
+      +`💰 *Subtotal:* ₹${o.sub}%0A`
+      +`🚚 *Delivery:* ₹${delivery}%0A`
+      +`✅ *TOTAL: ₹${o.total}*%0A%0A`
+      +`💳 *Payment:* ${selPayment} — ${payStatus}%0A`
+      +(o.ins?`📝 *Note:* ${o.ins}%0A`:'')
+      +`%0A_Great Taste · greattaste.in_`;
+    window.open(`https://wa.me/919990859930?text=${msg}`,'_blank');
+    closeCheckout();
+    if(document.getElementById('cartSidebar').classList.contains('open'))toggleCart();
+    cart=[];updateCartUI();pendingOrder=null;
+    document.getElementById('successOverlay').classList.add('open');
+  }
+  function openUpi(amount){
+    const upiId='9990859930@ptyes';
+    const payeeName='Great Taste';
+    const tn='Order from '+(pendingOrder?pendingOrder.fn:'Customer');
+    const upiLink='upi://pay?pa='+encodeURIComponent(upiId)+'&pn='+encodeURIComponent(payeeName)+'&am='+amount.toFixed(2)+'&cu=INR&tn='+encodeURIComponent(tn);
+    const qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&data='+encodeURIComponent(upiLink);
+    document.getElementById('upiQrImg').src=qrUrl;
+    document.getElementById('upiAmount').textContent='₹'+amount.toFixed(2);
+    document.getElementById('upiLink').href=upiLink;
+    document.getElementById('upiModal').classList.add('open');
+  }
+  function closeUpi(){document.getElementById('upiModal').classList.remove('open');}
+  function upiPaid(){ closeUpi(); sendOrderWhatsApp('PAID via UPI'); }
+  function closeSuccess(){document.getElementById('successOverlay').classList.remove('open');}
+
+  // ─── Razorpay Online Payment (backed by a real server) ───
+  async function openRazorpay(amount){
+    if(typeof Razorpay==='undefined'){
+      alert('Payment gateway could not load. Please check your internet connection and try again.');
+      return;
+    }
+    const o=pendingOrder;
+    let createRes, orderData;
+    try{
+      createRes=await fetch(BACKEND_URL+'/create-order',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          cart:cart.map(i=>({name:i.name,qty:i.qty})), // server recalculates the price itself
+          deliveryFee:delivery,
+          customer:{ name:o?(o.fn+' '+o.ln):'', phone:o?o.ph:'' }
+        })
+      });
+      orderData=await createRes.json();
+    }catch(err){
+      alert('Could not reach the payment server. Please check your internet connection and try again.');
+      return;
+    }
+    if(!createRes.ok){
+      alert('Could not start payment: '+(orderData.error||'Unknown error'));
+      return;
+    }
+
+    const options={
+      key:orderData.key_id,
+      order_id:orderData.order_id,   // ties this checkout to a server-verified amount
+      amount:orderData.amount,
+      currency:orderData.currency,
+      name:'Great Taste',
+      description:'Food order payment',
+      prefill:{ name:o?(o.fn+' '+o.ln):'', contact:o?o.ph:'' },
+      theme:{ color:'#BFA060' },
+      handler:async function(response){
+        try{
+          const verifyRes=await fetch(BACKEND_URL+'/verify-payment',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+              razorpay_order_id:response.razorpay_order_id,
+              razorpay_payment_id:response.razorpay_payment_id,
+              razorpay_signature:response.razorpay_signature
+            })
+          });
+          const verifyData=await verifyRes.json();
+          if(verifyData.verified){
+            sendOrderWhatsApp('PAID & VERIFIED via Razorpay — ID: '+response.razorpay_payment_id);
+          }else{
+            alert('Payment could not be verified. Please contact us with Payment ID: '+response.razorpay_payment_id);
+          }
+        }catch(err){
+          alert('Payment was made but we could not confirm it automatically. Please contact us with Payment ID: '+response.razorpay_payment_id);
+        }
+      },
+      modal:{
+        ondismiss:function(){
+          // user closed the popup without paying — order is NOT placed
+        }
+      }
+    };
+    const rzp=new Razorpay(options);
+    rzp.on('payment.failed',function(response){
+      alert('Payment failed: '+response.error.description+'\nPlease try again or choose another payment method.');
+    });
+    rzp.open();
+  }
+</script>
+
+<!-- UPI Payment Modal -->
+<div id="upiModal" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:5000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);">
+  <div style="background:#0F0F0F;border:1px solid rgba(191,160,96,.4);border-radius:16px;max-width:420px;width:100%;padding:32px 26px;text-align:center;color:#fff;font-family:'Jost',sans-serif;">
+    <div style="font-family:'Playfair Display',serif;font-size:24px;letter-spacing:2px;">Pay via <span style="color:#BFA060;">UPI</span></div>
+    <div style="font-size:10px;letter-spacing:4px;color:#BFA060;margin-top:6px;">SCAN WITH ANY UPI APP</div>
+    <div id="upiAmount" style="font-family:'Playfair Display',serif;font-size:36px;color:#BFA060;margin:18px 0 10px;"></div>
+    <div style="background:#fff;padding:14px;border-radius:10px;display:inline-block;">
+      <img id="upiQrImg" src="" alt="UPI QR" width="260" height="260" style="display:block;"/>
+    </div>
+    <div style="margin-top:14px;font-size:13px;color:rgba(255,255,255,.75);">UPI ID: <strong style="color:#fff;">9990859930@ptyes</strong></div>
+    <a id="upiLink" href="#" style="display:inline-block;margin-top:16px;background:#BFA060;color:#080808;padding:12px 28px;border-radius:6px;font-weight:600;letter-spacing:2px;font-size:12px;text-transform:uppercase;text-decoration:none;">Open UPI App</a>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:14px;line-height:1.6;">Payment goes directly to Great Taste's bank account.<br/>After paying, tap the button below to confirm your order.</div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button onclick="closeUpi()" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;padding:12px;border-radius:6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:inherit;">Cancel</button>
+      <button onclick="upiPaid()" style="flex:2;background:#BFA060;border:none;color:#080808;padding:12px;border-radius:6px;font-weight:600;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:inherit;">I have paid</button>
+    </div>
+  </div>
+</div>
+<script>
+  let pendingOrder=null;
+  document.addEventListener('DOMContentLoaded',()=>{ document.getElementById('upiModal').style.display='none'; });
+  // override display behavior for .open
+  const upiStyle=document.createElement('style');
+  upiStyle.textContent='#upiModal.open{display:flex !important;}';
+  document.head.appendChild(upiStyle);
+</script>
+</body>
+</html>
